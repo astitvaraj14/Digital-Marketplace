@@ -1,0 +1,122 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  color: #222;
+}
+
+a {
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 30px;
+  background: #222;
+}
+
+.navbar-brand a {
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.navbar-links a {
+  color: white;
+}
+
+.navbar-links span {
+  color: white;
+}
+
+.navbar-links button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 5px;
+}
+
+.page-container {
+  padding: 40px;
+  text-align: center;
+}
+
+.auth-container,
+.seller-container {
+  width: 90%;
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 30px;
+  background: white;
+  border-radius: 10px;
+}
+
+.auth-container h1,
+.seller-container h1 {
+  margin-top: 0;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 15px;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+form button {
+  padding: 11px;
+  border: none;
+  border-radius: 5px;
+  background: #222;
+  color: white;
+  font-size: 15px;
+}
+
+form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.error {
+  color: #c62828;
+  margin: 5px 0;
+}
+
+.success {
+  color: #2e7d32;
+  margin: 5px 0;
+}
+
+.seller-container label {
+  text-align: left;
+  font-weight: bold;
+}
