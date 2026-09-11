@@ -1,34 +1,131 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../../api/axios";
-
-const Stat = ({ label, value }) => (
-  <div className="bg-white rounded-lg shadow-sm p-4">
-    <p className="text-sm text-slate-500">{label}</p>
-    <p className="text-2xl font-bold">{value}</p>
-  </div>
-);
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
+  const [sellers, setSellers] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [error, setError] = useState("");
+
+  const loadData = async () => {
+    try {
+      const [dashboard, pending, allUsers] = await Promise.all([
+        api.get("/admin/dashboard"),
+        api.get("/admin/sellers/pending"),
+        api.get("/admin/users")
+      ]);
+
+      setStats(dashboard.data.statistics);
+      setSellers(pending.data.sellers);
+      setUsers(allUsers.data.users);
+    } catch (error) {
+      setError(
+        error.response?.data?.message || "Unable to load admin data"
+      );
+    }
+  };
 
   useEffect(() => {
-    api.get("/admin/dashboard").then((res) => setStats(res.data.data));
+    loadData();
   }, []);
 
-  if (!stats) return <p className="p-6">Loading...</p>;
+  const approve = async (id) => {
+    await api.patch(`/admin/sellers/${id}/approve`);
+    loadData();
+  };
+
+  const reject = async (id) => {
+    await api.delete(`/admin/sellers/${id}/reject`);
+    loadData();
+  };
+
+  const toggleBlock = async (user) => {
+    if (user.isBlocked)
+      await api.patch(`/admin/users/${user._id}/unblock`);
+    else
+      await api.patch(`/admin/users/${user._id}/block`);
+
+    loadData();
+  };
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Stat label="Customers" value={stats.totalCustomers} />
-        <Stat label="Sellers" value={stats.totalSellers} />
-        <Stat label="Pending Seller Approvals" value={stats.pendingSellerApprovals} />
-        <Stat label="Products" value={stats.totalProducts} />
-        <Stat label="Categories" value={stats.totalCategories} />
-        <Stat label="Orders" value={stats.totalOrders} />
-        <Stat label="Total Revenue" value={`₹${stats.totalRevenue}`} />
-      </div>
+    <div className="page-container">
+      <h1>Admin Dashboard</h1>
+
+      {error && <p className="error">{error}</p>}
+
+      {stats && (
+        <div className="dashboard-grid">
+          <div className="dashboard-card">
+            <h3>Users</h3>
+            <p>{stats.totalUsers}</p>
+          </div>
+
+          <div className="dashboard-card">
+            <h3>Customers</h3>
+            <p>{stats.totalCustomers}</p>
+          </div>
+
+          <div className="dashboard-card">
+            <h3>Sellers</h3>
+            <p>{stats.totalSellers}</p>
+          </div>
+
+          <div className="dashboard-card">
+            <h3>Pending</h3>
+            <p>{stats.pendingSellers}</p>
+          </div>
+
+          <div className="dashboard-card">
+            <h3>Approved</h3>
+            <p>{stats.approvedSellers}</p>
+          </div>
+
+          <div className="dashboard-card">
+            <h3>Blocked</h3>
+            <p>{stats.blockedUsers}</p>
+          </div>
+        </div>
+      )}
+
+      <h2>Pending Sellers</h2>
+
+      {sellers.map((seller) => (
+        <div className="product-card" key={seller._id}>
+          <h3>{seller.storeName || seller.name}</h3>
+          <p>{seller.email}</p>
+
+          <button onClick={() => approve(seller._id)}>
+            Approve
+          </button>
+
+          <button onClick={() => reject(seller._id)}>
+            Reject
+          </button>
+        </div>
+      ))}
+
+      <h2>Users</h2>
+
+      {users.map((user) => (
+        <div className="product-card" key={user._id}>
+          <strong>{user.name}</strong>
+
+          <p>
+            {user.email} — {user.role}
+          </p>
+
+          <p>
+            Status: {user.isBlocked ? "Blocked" : "Active"}
+          </p>
+
+          {user.role !== "admin" && (
+            <button onClick={() => toggleBlock(user)}>
+              {user.isBlocked ? "Unblock" : "Block"}
+            </button>
+          )}
+        </div>
+      ))}
     </div>
   );
 };
