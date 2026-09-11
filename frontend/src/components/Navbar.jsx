@@ -25,6 +25,14 @@ const Navbar = () => {
             {user.role === "seller" && (
               <Link to="/seller">Seller Dashboard</Link>
             )}
+            {user?.role === "seller" && (
+              <>
+                {" "}
+                <Link to="/seller/dashboard">Dashboard</Link>{" "}
+                <Link to="/seller/products">Products</Link>{" "}
+                <Link to="/seller">Profile</Link>{" "}
+              </>
+            )}
 
             <button onClick={logout}>Logout</button>
           </>

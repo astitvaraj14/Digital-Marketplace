@@ -120,3 +120,28 @@ form button:disabled {
   text-align: left;
   font-weight: bold;
 }
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin: 20px 0;
+}
+
+.dashboard-card,
+.product-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 15px 0;
+}
+
+.dashboard-card p {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.product-card button {
+  margin-right: 10px;
+  padding: 8px 12px;
+}
