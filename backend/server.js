@@ -145,10 +145,14 @@ const seedInitialData = async () => {
 setTimeout(seedInitialData, 1500);
 
 // API Routes
+const marketplaceRoutes = require("./routes/marketplaceRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+
+app.use("/api/marketplace", marketplaceRoutes);
+app.use("/api/orders", orderRoutes);
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/products", require("./routes/productRoutes"));
 app.use("/api/cart", require("./routes/cartRoutes"));
-app.use("/api/orders", require("./routes/orderRoutes"));
 app.use("/api/categories", require("./routes/categoryRoutes"));
 app.use("/api/seller", require("./routes/sellerRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
