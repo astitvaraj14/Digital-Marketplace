@@ -183,6 +183,55 @@ const deleteProduct = async (req, res, next) => {
   }
 };
 
+const getProducts = async (req, res, next) => {
+  try {
+    const { search, category, minPrice, maxPrice } = req.query;
+
+    const filter = { isActive: true };
+
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+        { category: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    if (category) {
+      filter.category = category;
+    }
+
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      filter.price = {};
+
+      if (
+        minPrice !== undefined &&
+        !Number.isNaN(Number(minPrice))
+      ) {
+        filter.price.$gte = Number(minPrice);
+      }
+
+      if (
+        maxPrice !== undefined &&
+        !Number.isNaN(Number(maxPrice))
+      ) {
+        filter.price.$lte = Number(maxPrice);
+      }
+    }
+
+    const products = await Product.find(filter)
+      .populate("seller", "name storeName storeDescription")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      count: products.length,
+      products
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports = {
   createProduct,
   getSellerProducts,

@@ -19,7 +19,7 @@ const router = express.Router();
 router.get("/", getProducts);
 
 router.get(
-  "/seller/mine",
+  "/seller/my-products",
   protect,
   authorize("seller"),
   getSellerProducts
