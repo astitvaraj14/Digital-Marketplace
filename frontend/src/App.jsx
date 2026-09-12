@@ -11,6 +11,9 @@ import SellerManagement from "./pages/seller/SellerManagement";
 
 import SellerDashboard from "./pages/seller/SellerDashboard";
 import ProductManagement from "./pages/seller/ProductManagement";
+import Products from "./pages/Products";
+import ProductDetails from "./pages/ProductDetails";
+import SellerDashboard from "./pages/seller/SellerDashboard";
 
 const Home = () => {
   return (
@@ -57,6 +60,16 @@ const App = () => {
               <ProtectedRoute allowedRoles={["seller"]}>
                 {" "}
                 <ProductManagement />{" "}
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/products" element={<Products />} />
+          <Route path="/products/:id" element={<ProductDetails />} />
+          <Route
+            path="/seller"
+            element={
+              <ProtectedRoute allowedRoles={["seller"]}>
+                <SellerDashboard />
               </ProtectedRoute>
             }
           />
