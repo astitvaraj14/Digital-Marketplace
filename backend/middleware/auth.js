@@ -1,17 +1,28 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
+
+// PROTECT AUTHENTICATED ROUTES
 const protect = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (
+      !authHeader ||
+      !authHeader.startsWith("Bearer ")
+    ) {
       return res.status(401).json({
         message: "Authentication token required"
       });
     }
 
     const token = authHeader.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({
+        message: "Authentication token required"
+      });
+    }
 
     const decoded = jwt.verify(
       token,
@@ -22,13 +33,13 @@ const protect = async (req, res, next) => {
 
     if (!user) {
       return res.status(401).json({
-        message: "User not found"
+        message: "User account no longer exists"
       });
     }
 
     if (user.isBlocked) {
       return res.status(403).json({
-        message: "Account is blocked"
+        message: "Your account has been blocked"
       });
     }
 
@@ -36,12 +47,24 @@ const protect = async (req, res, next) => {
 
     next();
   } catch (error) {
-    return res.status(401).json({
-      message: "Invalid or expired token"
-    });
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({
+        message: "Authentication token has expired"
+      });
+    }
+
+    if (error.name === "JsonWebTokenError") {
+      return res.status(401).json({
+        message: "Invalid authentication token"
+      });
+    }
+
+    next(error);
   }
 };
 
+
+// ROLE AUTHORIZATION
 const authorize = (...roles) => {
   return (req, res, next) => {
     if (!req.user) {
@@ -59,6 +82,7 @@ const authorize = (...roles) => {
     next();
   };
 };
+
 
 module.exports = {
   protect,
