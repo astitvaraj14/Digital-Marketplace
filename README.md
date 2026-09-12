@@ -202,11 +202,3 @@ Visit `http://localhost:5174` in your browser. Register a buyer or seller accoun
 
 ---
 
-## Roadmap / Not Yet Implemented
-
-- Auth controller/routes (register, login, JWT issuance)
-- Admin controller/routes (approve sellers, manage categories/users)
-- Cart, Order, Category, Notification controllers and routes
-- `auth.js` middleware (`protect`, `authorize`) and `errorHandler.js`
-- Frontend pages: Login, Register, Marketplace, ProductDetail, Cart, Orders, and all Admin/Seller dashboards
-- `AuthContext` for storing the logged-in user and JWT across the app
