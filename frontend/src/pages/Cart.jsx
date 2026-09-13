@@ -73,13 +73,29 @@ function Cart() {
       return;
     }
 
+    if (!shippingAddress || !shippingAddress.trim()) {
+      alert("Shipping address is required");
+      return;
+    }
+
     setCheckingOut(true);
     try {
+      const orderItemsPayload = cart.items.map((item) => ({
+        product: item.productId?._id || item.productId,
+        quantity: item.quantity,
+      }));
+
       const res = await api.post("/orders", {
-        shippingAddress,
+        items: orderItemsPayload,
+        shippingAddress: shippingAddress.trim(),
       });
 
-      if (res.data.success) {
+      if (res.status === 201 || res.data?.order || res.data?.success) {
+        try {
+          await api.delete("/cart");
+        } catch (e) {
+          // ignore cart clear error if any
+        }
         alert("Order placed successfully! Redirecting to your orders.");
         navigate("/orders");
       }

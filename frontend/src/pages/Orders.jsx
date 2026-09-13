@@ -12,10 +12,9 @@ function Orders() {
     const fetchOrders = async () => {
       setLoading(true);
       try {
-        const res = await api.get("/orders/mine");
-        if (res.data.success) {
-          setOrders(res.data.data);
-        }
+        const res = await api.get("/orders/my-orders");
+        const orderList = res.data.orders || res.data.data || [];
+        setOrders(orderList);
       } catch (err) {
         console.error("Error fetching orders:", err);
       } finally {
