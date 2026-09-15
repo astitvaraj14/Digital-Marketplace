@@ -7,99 +7,89 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
 
-  const loadData = async () => {
+  const load = async () => {
     try {
-      const [dashboard, pending, allUsers] = await Promise.all([
+      const [d, p, u] = await Promise.all([
         api.get("/admin/dashboard"),
         api.get("/admin/sellers/pending"),
         api.get("/admin/users")
       ]);
 
-      setStats(dashboard.data.statistics);
-      setSellers(pending.data.sellers);
-      setUsers(allUsers.data.users);
-    } catch (error) {
+      setStats(d.data.statistics);
+      setSellers(p.data.sellers || []);
+      setUsers(u.data.users || []);
+    } catch (e) {
       setError(
-        error.response?.data?.message || "Unable to load admin data"
+        e.response?.data?.message || "Failed to load admin data"
       );
     }
   };
 
   useEffect(() => {
-    loadData();
+    load();
   }, []);
 
   const approve = async (id) => {
     await api.patch(`/admin/sellers/${id}/approve`);
-    loadData();
+    load();
   };
 
   const reject = async (id) => {
-    await api.delete(`/admin/sellers/${id}/reject`);
-    loadData();
+    if (window.confirm("Reject this seller?")) {
+      await api.delete(`/admin/sellers/${id}/reject`);
+      load();
+    }
   };
 
-  const toggleBlock = async (user) => {
-    if (user.isBlocked)
-      await api.patch(`/admin/users/${user._id}/unblock`);
-    else
-      await api.patch(`/admin/users/${user._id}/block`);
+  const toggle = async (user) => {
+    const url = user.isBlocked
+      ? `/admin/users/${user._id}/unblock`
+      : `/admin/users/${user._id}/block`;
 
-    loadData();
+    await api.patch(url);
+    load();
   };
+
+  if (error) {
+    return (
+      <div className="page-container">
+        <p className="error">{error}</p>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="page-container">
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="page-container">
       <h1>Admin Dashboard</h1>
 
-      {error && <p className="error">{error}</p>}
-
-      {stats && (
-        <div className="dashboard-grid">
-          <div className="dashboard-card">
-            <h3>Users</h3>
-            <p>{stats.totalUsers}</p>
-          </div>
-
-          <div className="dashboard-card">
-            <h3>Customers</h3>
-            <p>{stats.totalCustomers}</p>
-          </div>
-
-          <div className="dashboard-card">
-            <h3>Sellers</h3>
-            <p>{stats.totalSellers}</p>
-          </div>
-
-          <div className="dashboard-card">
-            <h3>Pending</h3>
-            <p>{stats.pendingSellers}</p>
-          </div>
-
-          <div className="dashboard-card">
-            <h3>Approved</h3>
-            <p>{stats.approvedSellers}</p>
-          </div>
-
-          <div className="dashboard-card">
-            <h3>Blocked</h3>
-            <p>{stats.blockedUsers}</p>
-          </div>
-        </div>
-      )}
+      <div className="dashboard-grid">
+        <div>Total Users: {stats.totalUsers}</div>
+        <div>Customers: {stats.totalCustomers}</div>
+        <div>Sellers: {stats.totalSellers}</div>
+        <div>Pending: {stats.pendingSellers}</div>
+        <div>Approved: {stats.approvedSellers}</div>
+        <div>Blocked: {stats.blockedUsers}</div>
+      </div>
 
       <h2>Pending Sellers</h2>
 
-      {sellers.map((seller) => (
-        <div className="product-card" key={seller._id}>
-          <h3>{seller.storeName || seller.name}</h3>
-          <p>{seller.email}</p>
+      {sellers.map((s) => (
+        <div className="admin-row" key={s._id}>
+          {s.storeName || s.name} — {s.email}
 
-          <button onClick={() => approve(seller._id)}>
+          <button onClick={() => approve(s._id)}>
             Approve
           </button>
 
-          <button onClick={() => reject(seller._id)}>
+          <button onClick={() => reject(s._id)}>
             Reject
           </button>
         </div>
@@ -107,21 +97,13 @@ const AdminDashboard = () => {
 
       <h2>Users</h2>
 
-      {users.map((user) => (
-        <div className="product-card" key={user._id}>
-          <strong>{user.name}</strong>
+      {users.map((u) => (
+        <div className="admin-row" key={u._id}>
+          {u.name} — {u.role}
 
-          <p>
-            {user.email} — {user.role}
-          </p>
-
-          <p>
-            Status: {user.isBlocked ? "Blocked" : "Active"}
-          </p>
-
-          {user.role !== "admin" && (
-            <button onClick={() => toggleBlock(user)}>
-              {user.isBlocked ? "Unblock" : "Block"}
+          {u.role !== "admin" && (
+            <button onClick={() => toggle(u)}>
+              {u.isBlocked ? "Unblock" : "Block"}
             </button>
           )}
         </div>
