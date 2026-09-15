@@ -1,16 +1,12 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
-
-// PROTECT AUTHENTICATED ROUTES
+// Protect authenticated routes
 const protect = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
-    if (
-      !authHeader ||
-      !authHeader.startsWith("Bearer ")
-    ) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
         message: "Authentication token required"
       });
@@ -63,8 +59,7 @@ const protect = async (req, res, next) => {
   }
 };
 
-
-// ROLE AUTHORIZATION
+// Role authorization
 const authorize = (...roles) => {
   return (req, res, next) => {
     if (!req.user) {
@@ -82,7 +77,6 @@ const authorize = (...roles) => {
     next();
   };
 };
-
 
 module.exports = {
   protect,

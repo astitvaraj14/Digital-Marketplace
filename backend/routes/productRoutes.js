@@ -6,18 +6,20 @@ const {
   getSellerProducts,
   createProduct,
   updateProduct,
-  deleteProduct,
+  deleteProduct
 } = require("../controllers/productController");
 
 const {
   protect,
-  authorize,
+  authorize
 } = require("../middleware/auth");
 
 const router = express.Router();
 
+// Public product listing
 router.get("/", getProducts);
 
+// Seller's own products
 router.get(
   "/seller/my-products",
   protect,
@@ -25,8 +27,10 @@ router.get(
   getSellerProducts
 );
 
+// Individual product
 router.get("/:id", getProductById);
 
+// Create product
 router.post(
   "/",
   protect,
@@ -34,17 +38,19 @@ router.post(
   createProduct
 );
 
+// Update product
 router.put(
   "/:id",
   protect,
-  authorize("seller"),
+  authorize("seller", "admin"),
   updateProduct
 );
 
+// Delete product
 router.delete(
   "/:id",
   protect,
-  authorize("seller"),
+  authorize("seller", "admin"),
   deleteProduct
 );
 
