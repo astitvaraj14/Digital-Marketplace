@@ -234,6 +234,7 @@ const getProducts = async (req, res, next) => {
 
 module.exports = {
   createProduct,
+  getProducts,
   getSellerProducts,
   getProductById,
   updateProduct,
