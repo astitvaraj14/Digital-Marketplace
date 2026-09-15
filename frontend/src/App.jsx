@@ -1,18 +1,20 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import { AuthProvider } from "./context/AuthContext";
+
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-import Marketplace from "./pages/Marketplace";
-import ProductDetail from "./pages/ProductDetail";
+import Products from "./pages/Products";
+import ProductDetails from "./pages/ProductDetails";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Cart from "./pages/Cart";
-import Orders from "./pages/Orders";
 
 import SellerDashboard from "./pages/seller/SellerDashboard";
-import SellerProducts from "./pages/seller/SellerProducts";
-import SellerOrders from "./pages/seller/SellerOrders";
+import ProductManagement from "./pages/seller/ProductManagement";
+import SellerManagement from "./pages/seller/SellerManagement";
 import Inventory from "./pages/seller/Inventory.jsx";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -22,115 +24,107 @@ import AdminCategories from "./pages/admin/AdminCategories";
 
 function App() {
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Navbar />
+    <BrowserRouter>
+      <AuthProvider>
+        <div className="min-h-screen bg-slate-50">
+          <Navbar />
 
-      <Routes>
-        <Route path="/" element={<Marketplace />} />
-        <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+          <Routes>
+            {/* Customer Marketplace */}
+            <Route path="/" element={<Products />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/products/:id" element={<ProductDetails />} />
 
-        <Route
-          path="/cart"
-          element={
-            <ProtectedRoute roles={["customer"]}>
-              <Cart />
-            </ProtectedRoute>
-          }
-        />
+            {/* Authentication */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-        <Route
-          path="/orders"
-          element={
-            <ProtectedRoute roles={["customer"]}>
-              <Orders />
-            </ProtectedRoute>
-          }
-        />
+            {/* Seller */}
+            <Route
+              path="/seller"
+              element={
+                <ProtectedRoute roles={["seller"]}>
+                  <SellerManagement />
+                </ProtectedRoute>
+              }
+            />
 
-        <Route
-          path="/seller/dashboard"
-          element={
-            <ProtectedRoute roles={["seller"]}>
-              <SellerDashboard />
-            </ProtectedRoute>
-          }
-        />
+            <Route
+              path="/seller/dashboard"
+              element={
+                <ProtectedRoute roles={["seller"]}>
+                  <SellerDashboard />
+                </ProtectedRoute>
+              }
+            />
 
-        <Route
-          path="/seller/products"
-          element={
-            <ProtectedRoute roles={["seller"]}>
-              <SellerProducts />
-            </ProtectedRoute>
-          }
-        />
+            <Route
+              path="/seller/products"
+              element={
+                <ProtectedRoute roles={["seller"]}>
+                  <ProductManagement />
+                </ProtectedRoute>
+              }
+            />
 
-        <Route
-          path="/seller/orders"
-          element={
-            <ProtectedRoute roles={["seller"]}>
-              <SellerOrders />
-            </ProtectedRoute>
-          }
-        />
+            <Route
+              path="/seller/inventory"
+              element={
+                <ProtectedRoute roles={["seller"]}>
+                  <Inventory />
+                </ProtectedRoute>
+              }
+            />
 
-        <Route
-          path="/seller/inventory"
-          element={
-            <ProtectedRoute roles={["seller"]}>
-              <Inventory />
-            </ProtectedRoute>
-          }
-        />
+            {/* Admin */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
 
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute roles={["admin"]}>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
 
-        <Route
-          path="/admin/dashboard"
-          element={
-            <ProtectedRoute roles={["admin"]}>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminUsers />
+                </ProtectedRoute>
+              }
+            />
 
-        <Route
-          path="/admin/users"
-          element={
-            <ProtectedRoute roles={["admin"]}>
-              <AdminUsers />
-            </ProtectedRoute>
-          }
-        />
+            <Route
+              path="/admin/sellers"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminSellers />
+                </ProtectedRoute>
+              }
+            />
 
-        <Route
-          path="/admin/sellers"
-          element={
-            <ProtectedRoute roles={["admin"]}>
-              <AdminSellers />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin/categories"
-          element={
-            <ProtectedRoute roles={["admin"]}>
-              <AdminCategories />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </div>
+            <Route
+              path="/admin/categories"
+              element={
+                <ProtectedRoute roles={["admin"]}>
+                  <AdminCategories />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </div>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
