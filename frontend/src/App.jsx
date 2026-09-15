@@ -2,7 +2,6 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Inventory from "./pages/seller/Inventory.jsx";
 
 import Marketplace from "./pages/Marketplace";
 import ProductDetail from "./pages/ProductDetail";
@@ -14,6 +13,7 @@ import Orders from "./pages/Orders";
 import SellerDashboard from "./pages/seller/SellerDashboard";
 import SellerProducts from "./pages/seller/SellerProducts";
 import SellerOrders from "./pages/seller/SellerOrders";
+import Inventory from "./pages/seller/Inventory.jsx";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -24,6 +24,7 @@ function App() {
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
+
       <Routes>
         <Route path="/" element={<Marketplace />} />
         <Route path="/product/:id" element={<ProductDetail />} />
@@ -38,6 +39,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/orders"
           element={
@@ -55,6 +57,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/seller/products"
           element={
@@ -63,11 +66,30 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/seller/orders"
           element={
             <ProtectedRoute roles={["seller"]}>
               <SellerOrders />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/seller/inventory"
+          element={
+            <ProtectedRoute roles={["seller"]}>
+              <Inventory />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute roles={["admin"]}>
+              <AdminDashboard />
             </ProtectedRoute>
           }
         />
@@ -80,6 +102,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/admin/users"
           element={
@@ -88,6 +111,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/admin/sellers"
           element={
@@ -96,20 +120,12 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/admin/categories"
           element={
             <ProtectedRoute roles={["admin"]}>
               <AdminCategories />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/seller/inventory"
-          element={
-            <ProtectedRoute roles={["seller"]}>
-              <Inventory />
             </ProtectedRoute>
           }
         />
