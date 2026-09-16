@@ -76,5 +76,29 @@ const getOrderById = async (req, res, next) => {
   }
 };
 
-module.exports = { createOrder, getMyOrders, getOrderById };
+const getSellerOrders = async (req, res, next) => {
+  try {
+    const orders = await Order.find({
+      "items.seller": req.user._id,
+    })
+      .populate("customer", "name email phone address")
+      .populate("items.product", "name image")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: orders.length,
+      orders,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  createOrder,
+  getMyOrders,
+  getOrderById,
+  getSellerOrders,
+};
 

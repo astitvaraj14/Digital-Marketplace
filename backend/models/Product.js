@@ -85,7 +85,7 @@ const productSchema = new mongoose.Schema(
  * This allows both the existing integration code
  * and Indushree's customer marketplace code to work.
  */
-productSchema.pre("save", function (next) {
+productSchema.pre("save", function () {
   if (!this.seller && this.sellerId) {
     this.seller = this.sellerId;
   }
@@ -93,8 +93,6 @@ productSchema.pre("save", function (next) {
   if (!this.sellerId && this.seller) {
     this.sellerId = this.seller;
   }
-
-  next();
 });
 
 productSchema.index({

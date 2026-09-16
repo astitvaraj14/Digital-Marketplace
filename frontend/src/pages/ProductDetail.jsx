@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react"
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import { ShoppingCart, Star, ShieldCheck, Truck, ArrowLeft, Store, CheckCircle, AlertCircle } from "lucide-react";

@@ -6,6 +6,8 @@ import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import SellerOrders from "./pages/seller/SellerOrders";
+
 // Customer / Marketplace
 import Products from "./pages/Products";
 import ProductDetails from "./pages/ProductDetails";
@@ -54,6 +56,15 @@ function App() {
                 path="/products/:id"
                 element={<ProductDetails />}
               />
+
+<Route
+  path="/seller/orders"
+  element={
+    <ProtectedRoute roles={["seller"]}>
+      <SellerOrders />
+    </ProtectedRoute>
+  }
+/>
 
               {/* Indushree product-detail route compatibility */}
               <Route

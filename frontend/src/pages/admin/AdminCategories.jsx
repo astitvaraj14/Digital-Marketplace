@@ -9,7 +9,7 @@ const AdminCategories = () => {
 
   const load = async () => {
     const res = await api.get("/categories");
-    setCategories(res.data.data);
+    setCategories(res.data.categories || []);
   };
 
   useEffect(() => {
