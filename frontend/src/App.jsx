@@ -6,17 +6,25 @@ import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+// Customer / Marketplace
 import Products from "./pages/Products";
 import ProductDetails from "./pages/ProductDetails";
+import Marketplace from "./pages/Marketplace";
+import ProductDetail from "./pages/ProductDetail";
+import Cart from "./pages/Cart";
+import Orders from "./pages/customer/Orders";
 
+// Authentication
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
+// Seller
 import SellerDashboard from "./pages/seller/SellerDashboard";
 import ProductManagement from "./pages/seller/ProductManagement";
 import SellerManagement from "./pages/seller/SellerManagement";
 import Inventory from "./pages/seller/Inventory.jsx";
 
+// Admin
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminSellers from "./pages/admin/AdminSellers";
@@ -29,99 +37,157 @@ function App() {
         <div className="min-h-screen bg-slate-50">
           <Navbar />
 
-          <Routes>
-            {/* Customer Marketplace */}
-            <Route path="/" element={<Products />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/products/:id" element={<ProductDetails />} />
+          <main>
+            <Routes>
 
-            {/* Authentication */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+              {/* =========================
+                  CUSTOMER / MARKETPLACE
+                 ========================= */}
 
-            {/* Seller */}
-            <Route
-              path="/seller"
-              element={
-                <ProtectedRoute roles={["seller"]}>
-                  <SellerManagement />
-                </ProtectedRoute>
-              }
-            />
+              <Route path="/" element={<Marketplace />} />
 
-            <Route
-              path="/seller/dashboard"
-              element={
-                <ProtectedRoute roles={["seller"]}>
-                  <SellerDashboard />
-                </ProtectedRoute>
-              }
-            />
+              <Route path="/marketplace" element={<Marketplace />} />
 
-            <Route
-              path="/seller/products"
-              element={
-                <ProtectedRoute roles={["seller"]}>
-                  <ProductManagement />
-                </ProtectedRoute>
-              }
-            />
+              <Route path="/products" element={<Products />} />
 
-            <Route
-              path="/seller/inventory"
-              element={
-                <ProtectedRoute roles={["seller"]}>
-                  <Inventory />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/products/:id"
+                element={<ProductDetails />}
+              />
 
-            {/* Admin */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute roles={["admin"]}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
+              {/* Indushree product-detail route compatibility */}
+              <Route
+                path="/product/:id"
+                element={<ProductDetail />}
+              />
 
-            <Route
-              path="/admin/dashboard"
-              element={
-                <ProtectedRoute roles={["admin"]}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
+              {/* =========================
+                  AUTHENTICATION
+                 ========================= */}
 
-            <Route
-              path="/admin/users"
-              element={
-                <ProtectedRoute roles={["admin"]}>
-                  <AdminUsers />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/login"
+                element={<Login />}
+              />
 
-            <Route
-              path="/admin/sellers"
-              element={
-                <ProtectedRoute roles={["admin"]}>
-                  <AdminSellers />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/register"
+                element={<Register />}
+              />
 
-            <Route
-              path="/admin/categories"
-              element={
-                <ProtectedRoute roles={["admin"]}>
-                  <AdminCategories />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
+              {/* =========================
+                  CUSTOMER
+                 ========================= */}
+
+              <Route
+                path="/cart"
+                element={
+                  <ProtectedRoute roles={["customer"]}>
+                    <Cart />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/orders"
+                element={
+                  <ProtectedRoute roles={["customer"]}>
+                    <Orders />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* =========================
+                  SELLER
+                 ========================= */}
+
+              <Route
+                path="/seller"
+                element={
+                  <ProtectedRoute roles={["seller"]}>
+                    <SellerManagement />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/seller/dashboard"
+                element={
+                  <ProtectedRoute roles={["seller"]}>
+                    <SellerDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/seller/products"
+                element={
+                  <ProtectedRoute roles={["seller"]}>
+                    <ProductManagement />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/seller/inventory"
+                element={
+                  <ProtectedRoute roles={["seller"]}>
+                    <Inventory />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* =========================
+                  ADMIN
+                 ========================= */}
+
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute roles={["admin"]}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <ProtectedRoute roles={["admin"]}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedRoute roles={["admin"]}>
+                    <AdminUsers />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/sellers"
+                element={
+                  <ProtectedRoute roles={["admin"]}>
+                    <AdminSellers />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/categories"
+                element={
+                  <ProtectedRoute roles={["admin"]}>
+                    <AdminCategories />
+                  </ProtectedRoute>
+                }
+              />
+
+            </Routes>
+          </main>
         </div>
       </AuthProvider>
     </BrowserRouter>

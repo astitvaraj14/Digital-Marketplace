@@ -1,3 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================
+   Global Base Styles
+   ========================= */
+
 * {
   box-sizing: border-box;
 }
@@ -20,9 +28,8 @@
   --heading: system-ui, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
-  font: 18px/145% var(--sans);
+  font: 16px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -31,39 +38,34 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-@media (max-width: 1024px) {
-  :root {
-    font-size: 16px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px,
-      rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
+/* =========================
+   Body
+   ========================= */
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
-  color: #222;
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI",
+    Roboto, sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
 }
+
+/* =========================
+   Root
+   ========================= */
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================
+   Links & Buttons
+   ========================= */
 
 a {
   text-decoration: none;
@@ -73,15 +75,9 @@ button {
   cursor: pointer;
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
+/* =========================
+   Typography
+   ========================= */
 
 h1,
 h2 {
@@ -96,24 +92,11 @@ h1 {
   margin: 32px 0;
 }
 
-@media (max-width: 1024px) {
-  h1 {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-
 h2 {
   font-size: 24px;
   line-height: 118%;
   letter-spacing: -0.24px;
   margin: 0 0 8px;
-}
-
-@media (max-width: 1024px) {
-  h2 {
-    font-size: 20px;
-  }
 }
 
 p {
@@ -135,7 +118,19 @@ code {
   background: var(--code-bg);
 }
 
-/* Navbar */
+/* =========================
+   Marketplace Glass Navbar
+   ========================= */
+
+.glass-nav {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* =========================
+   Old / Shared Navbar Styles
+   ========================= */
 
 .navbar {
   display: flex;
@@ -171,7 +166,9 @@ code {
   border-radius: 5px;
 }
 
-/* General pages */
+/* =========================
+   General Pages
+   ========================= */
 
 .page-container {
   padding: 40px;
@@ -243,7 +240,9 @@ form button:disabled {
   font-weight: bold;
 }
 
-/* Admin dashboard */
+/* =========================
+   Admin Dashboard
+   ========================= */
 
 .dashboard-grid {
   display: grid;
@@ -268,4 +267,39 @@ form button:disabled {
 .product-card button {
   margin-right: 10px;
   padding: 8px 12px;
+}
+
+/* =========================
+   Responsive Styles
+   ========================= */
+
+@media (max-width: 1024px) {
+  :root {
+    font-size: 16px;
+  }
+
+  h1 {
+    font-size: 36px;
+    margin: 20px 0;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-container {
+    padding: 20px;
+  }
+
+  .auth-container,
+  .seller-container {
+    width: 95%;
+    padding: 20px;
+  }
 }

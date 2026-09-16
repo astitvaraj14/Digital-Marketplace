@@ -6,22 +6,30 @@ const {
   getSellerProducts,
   createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
 } = require("../controllers/productController");
 
 const {
   protect,
-  authorize
+  authorize,
 } = require("../middleware/auth");
 
 const router = express.Router();
 
-// Public product listing
+// Public marketplace
 router.get("/", getProducts);
 
-// Seller's own products
+// Seller's products
 router.get(
   "/seller/my-products",
+  protect,
+  authorize("seller"),
+  getSellerProducts
+);
+
+// Compatibility route used by customer/seller frontend
+router.get(
+  "/seller/mine",
   protect,
   authorize("seller"),
   getSellerProducts

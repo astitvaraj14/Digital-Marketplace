@@ -1,4 +1,5 @@
 const Product = require("../models/Product");
+const Category = require("../models/Category");
 
 const checkApprovedSeller = (req, res) => {
   if (!req.user || req.user.role !== "seller") {
@@ -18,60 +19,85 @@ const checkApprovedSeller = (req, res) => {
   return true;
 };
 
-const createProduct = async (req, res, next) => {
+// Get all active products
+const getProducts = async (req, res, next) => {
   try {
-    if (!checkApprovedSeller(req, res)) return;
-
     const {
-      name,
-      description,
+      search,
       category,
-      price,
-      stock,
-      image = "",
-    } = req.body;
+      minPrice,
+      maxPrice,
+      sort,
+    } = req.query;
 
-    if (
-      !name ||
-      !description ||
-      !category ||
-      price === undefined ||
-      stock === undefined
-    ) {
-      return res.status(400).json({
-        message: "Required product fields are missing",
-      });
+    const filter = {
+      $or: [
+        { isActive: true },
+        { status: "active" },
+      ],
+    };
+
+    // Search
+    if (search) {
+      filter.$and = [
+        {
+          $or: [
+            { name: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } },
+            { category: { $regex: search, $options: "i" } },
+          ],
+        },
+      ];
     }
 
-    const product = await Product.create({
-      seller: req.user._id,
-      name,
-      description,
-      category,
-      price: Number(price),
-      stock: Number(stock),
-      image,
-    });
+    // Category
+    if (category) {
+      if (/^[0-9a-fA-F]{24}$/.test(category)) {
+        filter.categoryId = category;
+      } else {
+        filter.category = {
+          $regex: `^${category}$`,
+          $options: "i",
+        };
+      }
+    }
 
-    res.status(201).json({
-      message: "Product created successfully",
-      product,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+    // Price
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      filter.price = {};
 
-const getSellerProducts = async (req, res, next) => {
-  try {
-    const products = await Product.find({
-      seller: req.user._id,
-    }).sort({
-      createdAt: -1,
-    });
+      if (minPrice !== undefined && minPrice !== "") {
+        filter.price.$gte = Number(minPrice);
+      }
+
+      if (maxPrice !== undefined && maxPrice !== "") {
+        filter.price.$lte = Number(maxPrice);
+      }
+    }
+
+    // Sorting
+    let sortOption = { createdAt: -1 };
+
+    if (sort === "price-asc") {
+      sortOption = { price: 1 };
+    } else if (sort === "price-desc") {
+      sortOption = { price: -1 };
+    } else if (sort === "rating") {
+      sortOption = { rating: -1 };
+    } else if (sort === "newest") {
+      sortOption = { createdAt: -1 };
+    }
+
+    const products = await Product.find(filter)
+      .populate("seller", "name storeName storeDescription")
+      .populate("sellerId", "name storeName storeDescription")
+      .populate("categoryId", "name description icon")
+      .sort(sortOption);
 
     res.json({
+      success: true,
       count: products.length,
+      data: products,
       products,
     });
   } catch (error) {
@@ -79,28 +105,115 @@ const getSellerProducts = async (req, res, next) => {
   }
 };
 
+// Get single product
 const getProductById = async (req, res, next) => {
   try {
-    const product = await Product.findById(req.params.id).populate(
-      "seller",
-      "name storeName storeDescription"
-    );
+    const product = await Product.findById(req.params.id)
+      .populate("seller", "name storeName storeDescription")
+      .populate("sellerId", "name storeName storeDescription")
+      .populate("categoryId", "name description icon");
 
     if (!product) {
       return res.status(404).json({
+        success: false,
         message: "Product not found",
       });
     }
 
-    res.json({ product });
+    res.json({
+      success: true,
+      data: product,
+      product,
+    });
   } catch (error) {
     next(error);
   }
 };
 
-const updateProduct = async (req, res, next) => {
+// Get seller's own products
+const getSellerProducts = async (req, res, next) => {
+  try {
+    const products = await Product.find({
+      $or: [
+        { seller: req.user._id },
+        { sellerId: req.user._id },
+      ],
+    })
+      .populate("categoryId", "name")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: products.length,
+      data: products,
+      products,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Create product
+const createProduct = async (req, res, next) => {
   try {
     if (!checkApprovedSeller(req, res)) return;
+
+    const {
+      category,
+      categoryId,
+      name,
+      description,
+      price,
+      image,
+      stock,
+      status,
+    } = req.body;
+
+    if (
+      !name ||
+      price === undefined ||
+      (category === undefined && categoryId === undefined)
+    ) {
+      return res.status(400).json({
+        message: "Category, name and price are required",
+      });
+    }
+
+    const product = await Product.create({
+      seller: req.user._id,
+      sellerId: req.user._id,
+      category: category || "",
+      categoryId: categoryId || undefined,
+      name,
+      description: description || "",
+      price: Number(price),
+      image:
+        image ||
+        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop",
+      stock: stock !== undefined ? Number(stock) : 0,
+      status: status || "active",
+      isActive: status !== "inactive",
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Product created successfully",
+      data: product,
+      product,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Update product
+const updateProduct = async (req, res, next) => {
+  try {
+    if (!req.user || !["seller", "admin"].includes(req.user.role)) {
+      return res.status(403).json({
+        message: "Access denied",
+      });
+    }
 
     const product = await Product.findById(req.params.id);
 
@@ -110,32 +223,45 @@ const updateProduct = async (req, res, next) => {
       });
     }
 
-    if (product.seller.toString() !== req.user._id.toString()) {
+    const sellerId = product.seller || product.sellerId;
+
+    if (
+      req.user.role !== "admin" &&
+      sellerId.toString() !== req.user._id.toString()
+    ) {
       return res.status(403).json({
         message: "You can update only your own products",
       });
     }
 
-    const fields = [
-      "name",
-      "description",
-      "category",
-      "image",
-      "isActive",
-    ];
+    const {
+      category,
+      categoryId,
+      name,
+      description,
+      price,
+      image,
+      stock,
+      status,
+      isActive,
+    } = req.body;
 
-    fields.forEach((field) => {
-      if (req.body[field] !== undefined) {
-        product[field] = req.body[field];
-      }
-    });
+    if (name !== undefined) product.name = name;
+    if (description !== undefined) product.description = description;
+    if (category !== undefined) product.category = category;
+    if (categoryId !== undefined) product.categoryId = categoryId;
+    if (price !== undefined) product.price = Number(price);
+    if (image !== undefined) product.image = image;
+    if (stock !== undefined) product.stock = Number(stock);
 
-    if (req.body.price !== undefined) {
-      product.price = Number(req.body.price);
+    if (status !== undefined) {
+      product.status = status;
+      product.isActive = status === "active";
     }
 
-    if (req.body.stock !== undefined) {
-      product.stock = Number(req.body.stock);
+    if (isActive !== undefined) {
+      product.isActive = isActive;
+      product.status = isActive ? "active" : "inactive";
     }
 
     if (product.price < 0 || product.stock < 0) {
@@ -147,7 +273,9 @@ const updateProduct = async (req, res, next) => {
     await product.save();
 
     res.json({
+      success: true,
       message: "Product updated successfully",
+      data: product,
       product,
     });
   } catch (error) {
@@ -155,10 +283,9 @@ const updateProduct = async (req, res, next) => {
   }
 };
 
+// Delete product
 const deleteProduct = async (req, res, next) => {
   try {
-    if (!checkApprovedSeller(req, res)) return;
-
     const product = await Product.findById(req.params.id);
 
     if (!product) {
@@ -167,7 +294,12 @@ const deleteProduct = async (req, res, next) => {
       });
     }
 
-    if (product.seller.toString() !== req.user._id.toString()) {
+    const sellerId = product.seller || product.sellerId;
+
+    if (
+      req.user.role !== "admin" &&
+      sellerId.toString() !== req.user._id.toString()
+    ) {
       return res.status(403).json({
         message: "You can delete only your own products",
       });
@@ -176,6 +308,7 @@ const deleteProduct = async (req, res, next) => {
     await product.deleteOne();
 
     res.json({
+      success: true,
       message: "Product deleted successfully",
     });
   } catch (error) {
@@ -183,60 +316,11 @@ const deleteProduct = async (req, res, next) => {
   }
 };
 
-const getProducts = async (req, res, next) => {
-  try {
-    const { search, category, minPrice, maxPrice } = req.query;
-
-    const filter = { isActive: true };
-
-    if (search) {
-      filter.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-        { category: { $regex: search, $options: "i" } }
-      ];
-    }
-
-    if (category) {
-      filter.category = category;
-    }
-
-    if (minPrice !== undefined || maxPrice !== undefined) {
-      filter.price = {};
-
-      if (
-        minPrice !== undefined &&
-        !Number.isNaN(Number(minPrice))
-      ) {
-        filter.price.$gte = Number(minPrice);
-      }
-
-      if (
-        maxPrice !== undefined &&
-        !Number.isNaN(Number(maxPrice))
-      ) {
-        filter.price.$lte = Number(maxPrice);
-      }
-    }
-
-    const products = await Product.find(filter)
-      .populate("seller", "name storeName storeDescription")
-      .sort({ createdAt: -1 });
-
-    res.json({
-      count: products.length,
-      products
-    });
-  } catch (e) {
-    next(e);
-  }
-};
-
 module.exports = {
-  createProduct,
   getProducts,
-  getSellerProducts,
   getProductById,
+  getSellerProducts,
+  createProduct,
   updateProduct,
   deleteProduct,
 };
