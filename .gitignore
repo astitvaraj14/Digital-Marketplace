@@ -5,3 +5,6 @@ build/
 .env.local
 .DS_Store
 *.log
+backend/.env
+backend/__pycache__/
+backend/venv/
