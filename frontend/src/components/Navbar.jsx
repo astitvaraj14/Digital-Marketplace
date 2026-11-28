@@ -1,115 +1,188 @@
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 
-const Navbar = () => {
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
+import {
+  ShoppingCart,
+  Bot,
+  LayoutDashboard,
+  LogOut,
+  User
+} from 'lucide-react';
+
+const Navbar = ({ onToggleAssistant, cartCount = 0 }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
-
   return (
-    <nav className="bg-slate-900 text-white px-6 py-3 flex items-center justify-between">
-      <Link to="/" className="font-bold text-lg">
-        🛒 Digital Marketplace
-      </Link>
-
-      <div className="flex items-center gap-4 text-sm">
-        <Link to="/" className="hover:text-emerald-400">
-          Marketplace
+    <nav
+      style={{
+        backgroundColor: '#0F172A',
+        color: '#FFFFFF',
+        padding: '12px 24px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}
+    >
+      {/* Left Section */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '24px'
+        }}
+      >
+        <Link
+          to="/"
+          style={{
+            fontSize: '18px',
+            fontWeight: 'bold',
+            color: '#FFFFFF',
+            textDecoration: 'none'
+          }}
+        >
+          SmartCart <span style={{ color: '#38BDF8' }}>AI</span>
         </Link>
 
-        {!user && (
-          <>
-            <Link to="/login" className="hover:text-emerald-400">
-              Login
-            </Link>
+        <Link
+          to="/catalog"
+          style={{
+            color: '#CBD5E1',
+            textDecoration: 'none'
+          }}
+        >
+          Catalog
+        </Link>
 
-            <Link to="/register" className="hover:text-emerald-400">
-              Register
-            </Link>
-          </>
+        {user?.role === 'seller' && (
+          <Link
+            to="/seller/dashboard"
+            style={{
+              color: '#CBD5E1',
+              textDecoration: 'none'
+            }}
+          >
+            Seller Hub
+          </Link>
         )}
 
-        {user?.role === "customer" && (
-          <>
-            <Link to="/products" className="hover:text-emerald-400">
-              Products
-            </Link>
-
-            <Link to="/cart" className="hover:text-emerald-400">
-              Cart
-            </Link>
-
-            <Link to="/orders" className="hover:text-emerald-400">
-              My Orders
-            </Link>
-          </>
+        {user?.role === 'admin' && (
+          <Link
+            to="/admin/dashboard"
+            style={{
+              color: '#CBD5E1',
+              textDecoration: 'none'
+            }}
+          >
+            Admin Console
+          </Link>
         )}
+      </div>
 
-        {user?.role === "seller" && (
-          <>
-            <Link to="/seller/dashboard" className="hover:text-emerald-400">
-              Dashboard
-            </Link>
+      {/* Right Section */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px'
+        }}
+      >
+        <button
+          onClick={onToggleAssistant}
+          style={{
+            backgroundColor: '#1E293B',
+            border: '1px solid #38BDF8',
+            color: '#38BDF8',
+            padding: '6px 12px',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+        >
+          <Bot size={16} />
+          Ask AI
+        </button>
 
-            <Link to="/seller/products" className="hover:text-emerald-400">
-              My Products
-            </Link>
+        <Link
+          to="/cart"
+          style={{
+            color: '#FFFFFF',
+            position: 'relative',
+            textDecoration: 'none'
+          }}
+        >
+          <ShoppingCart size={20} />
 
-            <Link to="/seller/orders" className="hover:text-emerald-400">
-              Orders
-            </Link>
+          {cartCount > 0 && (
+            <span
+              style={{
+                position: 'absolute',
+                top: '-8px',
+                right: '-8px',
+                backgroundColor: '#38BDF8',
+                color: '#0F172A',
+                fontSize: '10px',
+                fontWeight: 'bold',
+                borderRadius: '50%',
+                padding: '2px 6px'
+              }}
+            >
+              {cartCount}
+            </span>
+          )}
+        </Link>
 
-            <Link to="/seller/inventory" className="hover:text-emerald-400">
-              Inventory
-            </Link>
-
-            <Link to="/seller" className="hover:text-emerald-400">
-              Profile
-            </Link>
-          </>
-        )}
-
-        {user?.role === "admin" && (
-          <>
-            <Link to="/admin/dashboard" className="hover:text-emerald-400">
-              Dashboard
-            </Link>
-
-            <Link to="/admin/sellers" className="hover:text-emerald-400">
-              Sellers
-            </Link>
-
-            <Link to="/admin/users" className="hover:text-emerald-400">
-              Users
-            </Link>
-
-            <Link to="/admin/categories" className="hover:text-emerald-400">
-              Categories
-            </Link>
-          </>
-        )}
-
-        {user && (
-          <div className="flex items-center gap-3 ml-2 pl-4 border-l border-slate-700">
-            <span className="text-slate-300">
-              {user.name}{" "}
-              <span className="text-xs text-slate-500">
-                ({user.role})
-              </span>
+        {user ? (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
+            }}
+          >
+            <span
+              style={{
+                fontSize: '12px',
+                color: '#94A3B8',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              <User size={12} />
+              {user.name} ({user.role})
             </span>
 
             <button
-              onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
+              onClick={logout}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#94A3B8',
+                cursor: 'pointer'
+              }}
             >
-              Logout
+              <LogOut size={16} />
             </button>
           </div>
+        ) : (
+          <Link
+            to="/login"
+            style={{
+              backgroundColor: '#38BDF8',
+              color: '#0F172A',
+              padding: '6px 16px',
+              borderRadius: '6px',
+              textDecoration: 'none',
+              fontWeight: 'bold'
+            }}
+          >
+            Login
+          </Link>
         )}
       </div>
     </nav>

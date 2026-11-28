@@ -1,76 +1,71 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import api from "../api/axios";
 
-const AuthContext = createContext();
+import React, {
+  createContext,
+  useContext,
+  useState
+} from 'react';
+
+import api from '../api/axios';
+
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('smartcart_user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
-  const loadUser = async () => {
-    const token = localStorage.getItem("token");
+  const [loading, setLoading] = useState(false);
 
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+  // Login function
+  const login = async (email, password) => {
+    setLoading(true);
 
     try {
-      const response = await api.get("/auth/me");
-      setUser(response.data.user);
+      const response = await api.post('/auth/login', {
+        email,
+        password
+      });
+
+      const { access_token, user: userData } = response.data;
+
+      localStorage.setItem('smartcart_token', access_token);
+      localStorage.setItem('smartcart_user', JSON.stringify(userData));
+
+      setUser(userData);
+
+      return { success: true };
+
     } catch (error) {
-      localStorage.removeItem("token");
-      setUser(null);
+      return {
+        success: false,
+        message:
+          error.response?.data?.detail || 'Authentication failed'
+      };
+
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadUser();
-  }, []);
-
-  const login = async (email, password) => {
-    const response = await api.post("/auth/login", {
-      email,
-      password
-    });
-
-    localStorage.setItem("token", response.data.token);
-    setUser(response.data.user);
-
-    return response.data;
-  };
-
-  const register = async (userData) => {
-    const response = await api.post("/auth/register", userData);
-
-    localStorage.setItem("token", response.data.token);
-    setUser(response.data.user);
-
-    return response.data;
-  };
-
+  // Logout function
   const logout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem('smartcart_token');
+    localStorage.removeItem('smartcart_user');
+
     setUser(null);
+
+    window.location.href = '/login';
   };
 
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        login,
-        register,
-        logout
-      }}
+      value={{ user, login, logout, loading }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+// Custom hook
+export const useAuth = () => useContext(AuthContext);
